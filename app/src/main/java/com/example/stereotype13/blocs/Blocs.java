@@ -1,6 +1,7 @@
 package com.example.stereotype13.blocs;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
@@ -125,8 +126,10 @@ public class Blocs extends SimpleBaseGameActivity {
         mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
             private float originX = 0.0f;
+            private int deltaX = 0;
             private long startTime = 0;
             private long deltaTime = 0;
+            private float movementThreshold = CAMERA_WIDTH/BlocsModel.BOARD_COLUMNS;
 
             @Override
             public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
@@ -135,10 +138,15 @@ public class Blocs extends SimpleBaseGameActivity {
                     originX = pSceneTouchEvent.getX();
                     startTime = pSceneTouchEvent.getMotionEvent().getEventTime();
                 }
+                else if(pSceneTouchEvent.isActionMove()) {
+                    deltaX = (int)Math.floor(pSceneTouchEvent.getX()/movementThreshold);
+                    BlocsModel.move(deltaX);
+
+                }
                 else if(pSceneTouchEvent.isActionUp()) {
                     deltaTime = startTime - pSceneTouchEvent.getMotionEvent().getEventTime();
                     if(deltaTime <= TAP_TOUCH_THRESHOLD_MS) {
-
+                        gameToast(String.valueOf(deltaTime));
                         mBlocsModel.rotate();
                         if(BlocsModel.collisionDetected()) {
 
@@ -146,6 +154,7 @@ public class Blocs extends SimpleBaseGameActivity {
                         }
                         mScene = mBlocsModel.render(mScene);
                     }
+
                 }
                 return true;
             }
@@ -217,6 +226,15 @@ public class Blocs extends SimpleBaseGameActivity {
        // Log.d("LOG", mBlocsModel.toString());
         mScene = mBlocsModel.render(mScene);
 
+    }
+
+    public void gameToast(final String msg) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(Blocs.this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     // ===========================================================
     // Inner and Anonymous Classes

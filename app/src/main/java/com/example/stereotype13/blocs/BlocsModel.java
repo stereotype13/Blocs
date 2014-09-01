@@ -10,8 +10,8 @@ import java.util.Arrays;
  * Created by stereotype13 on 8/24/14.
  */
 public class BlocsModel {
-    private final static int BOARD_COLUMNS = 12;
-    private final static int BOARD_ROWS = 18;
+    public final static int BOARD_COLUMNS = 12;
+    public final static int BOARD_ROWS = 18;
 
     private static int[][] mBoard;
     private static int mCurrentBlockID = 1;
@@ -182,6 +182,14 @@ public class BlocsModel {
         return backBuffer;
     }
 
+    public static boolean move(int x) {
+        boolean canMove = true;
 
+        Block block = mBlocks.get(mBlocks.size() - 1);
+        //Flip flop x and y
+        block.setY(x);
+        block.placeOnBoard();
+        return canMove;
+    }
 
 }

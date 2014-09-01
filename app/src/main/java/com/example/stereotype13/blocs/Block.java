@@ -49,6 +49,14 @@ public class Block {
         this.y = y;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
     public boolean placeOnBoard() {
         int[][] frontBuffer = BlocsModel.getFrontBuffer();
         int[][] backBuffer = BlocsModel.getBackBuffer();
@@ -91,6 +99,8 @@ public class Block {
 
         return itWorked;
     }
+
+
 
     public class Configuration {
 
