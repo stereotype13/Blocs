@@ -4,6 +4,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by stereotype13 on 8/24/14.
@@ -135,17 +136,35 @@ public class BlocsModel {
     public boolean rotate() {
         Block block = mBlocks.get(mBlocks.size() - 1);
         block.rotate();
-        if(block.detectCollision()) {
-            block.setIsInPlay(false);
-        }
+
         return true;
-        /*
-        if(block.detectOverlap()) {
-            //undo the rotation if overlap detected
-            block.undoRotation();
-        }
-        *
+
+
+
     }
+
+    public static int[][] getFrontBuffer() {
+        return mBoard;
+    }
+
+    public static void setFrontBuffer(int[][] frontBuffer) {
+        mBoard = frontBuffer;
+    }
+
+    public static int[][] getBackBuffer() {
+
+        int[][] backBuffer = new int[BOARD_ROWS][BOARD_COLUMNS];
+
+        //Create a deep copy of the board
+        final boolean[][] result = new boolean[mBoard.length][];
+        for (int i = 0; i < mBoard.length; i++) {
+            backBuffer[i] = Arrays.copyOf(mBoard[i], mBoard[i].length);
+
+        }
+
+        return backBuffer;
+    }
+
 
 
 }

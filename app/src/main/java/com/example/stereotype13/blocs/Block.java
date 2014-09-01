@@ -50,23 +50,18 @@ public class Block {
     }
 
     public boolean placeOnBoard() {
-        int[][] board = BlocsModel.getBoard();
+        int[][] frontBuffer = BlocsModel.getFrontBuffer();
+        int[][] backBuffer = BlocsModel.getBackBuffer();
+
+        removeBlock(backBuffer);
 
         Configuration configuration = mConfigurations.get(mCurrentConfiguration);
         int[][] shape = configuration.getShape();
 
-        int BOARD_ROWS = board.length;
-        int BOARD_COLUMNS = board[0].length;
-        int[][] backBuffer = new int[BOARD_ROWS][BOARD_COLUMNS];
+        int BOARD_ROWS = frontBuffer.length;
+        int BOARD_COLUMNS = frontBuffer[0].length;
 
-        //Create a deep copy of the board
-        final boolean[][] result = new boolean[board.length][];
-        for (int i = 0; i < board.length; i++) {
-            backBuffer[i] = Arrays.copyOf(board[i], board[i].length);
-            // For Java versions prior to Java 6 use the next:
-            // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
-        }
-
+        //Loop through the shape
         for(int i = 0; i < shape.length; ++i) {
             for(int j = 0; j < shape[i].length; ++j) {
                  if(shape[i][j] > 0) {
@@ -74,15 +69,15 @@ public class Block {
                          backBuffer[this.x + i][this.y + j] = mBlockID;
                      }
                      else {
-                         BlocsModel.setBoard(board);
+                         BlocsModel.setBoard(frontBuffer);
                          return false;
                      }
 
                  }
             }
         }
-        board = backBuffer;
-        BlocsModel.setBoard(board);
+
+        BlocsModel.setBoard(backBuffer);
 
         return true;
     }
@@ -108,6 +103,16 @@ public class Block {
 
         int BOARD_ROWS = board.length;
         int BOARD_COLUMNS = board[0].length;
+
+        int[][] backBuffer = new int[BOARD_ROWS][BOARD_COLUMNS];
+
+        //Create a deep copy of the board
+        final boolean[][] result = new boolean[board.length][];
+        for (int i = 0; i < board.length; i++) {
+            backBuffer[i] = Arrays.copyOf(board[i], board[i].length);
+            // For Java versions prior to Java 6 use the next:
+            // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
+        }
 
         for(int i = 0; i < BOARD_ROWS; i++) {
             for(int j = 0; j < BOARD_COLUMNS; j++) {
@@ -157,51 +162,45 @@ public class Block {
         return false;
     }
 
-    public void removeBlock() {
-        int[][] board = BlocsModel.getBoard();
+    public void removeBlock(int[][] buffer) {
+
         //Remove the in-play block
-        int BOARD_ROWS = board.length;
-        int BOARD_COLUMNS = board[0].length;
+        int BOARD_ROWS = buffer.length;
+        int BOARD_COLUMNS = buffer[0].length;
 
         for(int i = 0; i < BOARD_ROWS; i++) {
             for(int j = 0; j < BOARD_COLUMNS; j++) {
-                if(board[i][j] == mBlockID) {
+                if(buffer[i][j] == mBlockID) {
 
                     //Set the current square to 0.
-                    board[i][j] = 0;
+                    buffer[i][j] = 0;
 
                 }
 
             }
 
         }
-        BlocsModel.setBoard(board);
+
     }
 
     public void update() {
 
-        int[][] board = BlocsModel.getBoard();
-        int BOARD_ROWS = board.length;
-        int BOARD_COLUMNS = board[0].length;
+        int[][] frontBuffer = BlocsModel.getFrontBuffer();
+        int[][] backBuffer = BlocsModel.getBackBuffer();
 
-        int[][] backBuffer = new int[BOARD_ROWS][BOARD_COLUMNS];
+        int BOARD_ROWS = frontBuffer.length;
+        int BOARD_COLUMNS = frontBuffer[0].length;
 
-        //Create a deep copy of the board
-        final boolean[][] result = new boolean[board.length][];
-        for (int i = 0; i < board.length; i++) {
-            backBuffer[i] = Arrays.copyOf(board[i], board[i].length);
-            // For Java versions prior to Java 6 use the next:
-            // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
-        }
-
-        removeBlock();
+        removeBlock(backBuffer);
 
         for(int i = 0; i < BOARD_ROWS; i++) {
             for(int j = 0; j < BOARD_COLUMNS; j++) {
-                if(backBuffer[i][j] == mBlockID) {
+                if(frontBuffer[i][j] == mBlockID) {
 
                     //Look at the back buffer and shift each of the in-play's blocks down 1 unit
-                    board[i + 1][j] = mBlockID;
+                    backBuffer[i + 1][j] = mBlockID;
+
+
 
                 }
 
@@ -211,7 +210,7 @@ public class Block {
 
         this.x++;
 
-        BlocsModel.setBoard(board);
+        BlocsModel.setFrontBuffer(backBuffer);
 
 
     }
@@ -238,26 +237,11 @@ public class Block {
             mCurrentConfiguration = 0;
         }
 
-        //Remove the current configuration
-        removeBlock();
-
         //Place the new configuration on the board
         placeOnBoard();
     }
 
-    public void undoRotation() {
-        int noOfConfigurations = mConfigurations.size();
-        mCurrentConfiguration--;
-        if(mCurrentConfiguration < 0) {
-            mCurrentConfiguration = noOfConfigurations - 1;
-        }
 
-        //Remove the current configuration
-        removeBlock();
-
-        //Place the new configuration on the board
-        placeOnBoard();
-    }
 
     public boolean isInPlay() {
         return mInPlay;

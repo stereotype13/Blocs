@@ -108,9 +108,9 @@ public class Blocs extends SimpleBaseGameActivity {
 
         mBlocsModel.addBlock(block);
 
-        //Log.d("LOG", mBlocsModel.toString());
+        Log.d("LOG", mBlocsModel.toString());
 
-        float xSeconds = 1.0f; // meaning 5 and a half second
+        float xSeconds = 0.5f; // meaning 5 and a half second
         boolean repeat = true; // true to reset the timer after the time passed and execute again
         TimerHandler myTimer = new TimerHandler(xSeconds, repeat, new ITimerCallback() {
             public void onTimePassed(TimerHandler pTimerHandler) {
@@ -138,7 +138,10 @@ public class Blocs extends SimpleBaseGameActivity {
                 else if(pSceneTouchEvent.isActionUp()) {
                     deltaTime = startTime - pSceneTouchEvent.getMotionEvent().getEventTime();
                     if(deltaTime <= TAP_TOUCH_THRESHOLD_MS) {
-                        mBlocsModel.rotate();
+
+                        if(!mBlocsModel.rotate()) {
+                            mBlocsModel.addBlock(chooseRandomBlock());
+                        }
                         mScene = mBlocsModel.render(mScene);
                     }
                 }
@@ -209,7 +212,7 @@ public class Blocs extends SimpleBaseGameActivity {
             }
         }
 
-        //Log.d("LOG", mBlocsModel.toString());
+        Log.d("LOG", mBlocsModel.toString());
         mScene = mBlocsModel.render(mScene);
 
     }
