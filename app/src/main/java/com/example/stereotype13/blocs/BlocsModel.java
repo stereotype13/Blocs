@@ -14,9 +14,9 @@ public class BlocsModel {
     private final static int BOARD_ROWS = 18;
 
     private static int[][] mBoard;
-    private int mCurrentBlockID = 1;
+    private static int mCurrentBlockID = 1;
 
-    private ArrayList<Block> mBlocks;
+    private static ArrayList<Block> mBlocks;
 
     private Scene mScene;
 
@@ -38,7 +38,7 @@ public class BlocsModel {
     }
 
     public boolean updateModel() {
-
+        boolean updateWorked = true;
         //Look for the in-play block and move it down, unless there is a collision.
         for(Block block : mBlocks) {
             if(block.isInPlay()) {
@@ -46,21 +46,38 @@ public class BlocsModel {
 
                 if(block.detectCollision()) {
                     block.setIsInPlay(false);
-                    return false;
+                    updateWorked = false;
                 }
 
 
             }
         }
 
-        return true;
+        return updateWorked;
+    }
+
+    public static boolean collisionDetected() {
+        boolean detected = false;
+        //Get the current block
+        Block block = mBlocks.get(mBlocks.size() - 1);
+        if(block.detectCollision()) {
+            detected = true;
+            block.setIsInPlay(false);
+        }
+
+        return detected;
     }
 
     public boolean addBlock(Block block) {
+        boolean result = true;
         block.setID(mCurrentBlockID);
         mBlocks.add(block);
-        block.placeOnBoard();
-        boolean result = block.detectCollision();
+        if(!block.placeOnBoard()) {
+            //overlap detected
+            result = false;
+        }
+
+
 
         mCurrentBlockID++;
 

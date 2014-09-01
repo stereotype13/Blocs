@@ -52,6 +52,7 @@ public class Block {
     public boolean placeOnBoard() {
         int[][] frontBuffer = BlocsModel.getFrontBuffer();
         int[][] backBuffer = BlocsModel.getBackBuffer();
+        boolean itWorked = true;
 
         removeBlock(backBuffer);
 
@@ -69,17 +70,26 @@ public class Block {
                          backBuffer[this.x + i][this.y + j] = mBlockID;
                      }
                      else {
-                         BlocsModel.setBoard(frontBuffer);
-                         return false;
+
+                         itWorked = false;
+                         break;
                      }
 
                  }
             }
         }
 
-        BlocsModel.setBoard(backBuffer);
+        if(itWorked) {
+            //if the rotation worked fine, set the backbuffer as the new buffer
+            BlocsModel.setBoard(backBuffer);
+        }
+        else {
+            //otherwise, keep the front buffer
+            BlocsModel.setBoard(frontBuffer);
+        }
 
-        return true;
+
+        return itWorked;
     }
 
     public class Configuration {
@@ -238,7 +248,12 @@ public class Block {
         }
 
         //Place the new configuration on the board
-        placeOnBoard();
+        if(!placeOnBoard()) {
+            mCurrentConfiguration--;
+            if(mCurrentConfiguration < 0) {
+                mCurrentConfiguration = noOfConfigurations - 1;
+            }
+        }
     }
 
 
