@@ -49,7 +49,7 @@ public class Blocs extends SimpleBaseGameActivity {
 
     private static final float MOVE_TIMER_THRESHOLD_SECS = 0.5f;
     private static final float MOVE_TOUCH_THRESHOLD = 50;
-    private static final long TAP_TOUCH_THRESHOLD_MS = 100;
+    private static final long TAP_TOUCH_THRESHOLD_MS = 150;
 
     // ===========================================================
     // Fields
@@ -140,13 +140,18 @@ public class Blocs extends SimpleBaseGameActivity {
                 }
                 else if(pSceneTouchEvent.isActionMove()) {
                     deltaX = (int)Math.floor(pSceneTouchEvent.getX()/movementThreshold);
-                    BlocsModel.move(deltaX);
+
+                    if(deltaTime >= TAP_TOUCH_THRESHOLD_MS && deltaX >= movementThreshold) {
+                        gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshholde: " + movementThreshold + ", deltaX: " + deltaX);
+                        BlocsModel.move(deltaX);
+                    }
+
 
                 }
                 else if(pSceneTouchEvent.isActionUp()) {
-                    deltaTime = startTime - pSceneTouchEvent.getMotionEvent().getEventTime();
-                    if(deltaTime <= TAP_TOUCH_THRESHOLD_MS) {
-                        gameToast(String.valueOf(deltaTime));
+                    deltaTime = pSceneTouchEvent.getMotionEvent().getEventTime() - startTime;
+                    if(deltaTime <= TAP_TOUCH_THRESHOLD_MS && deltaX < movementThreshold) {
+                        gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshholde: " + movementThreshold + ", deltaX: " + deltaX);
                         mBlocsModel.rotate();
                         if(BlocsModel.collisionDetected()) {
 
@@ -154,6 +159,8 @@ public class Blocs extends SimpleBaseGameActivity {
                         }
                         mScene = mBlocsModel.render(mScene);
                     }
+                    deltaTime = 0;
+                    deltaX = 0;
 
                 }
                 return true;
