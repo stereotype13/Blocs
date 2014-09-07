@@ -126,6 +126,7 @@ public class Blocs extends SimpleBaseGameActivity {
         mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
             private float originX = 0.0f;
+            private float pixelX = 0.0f;
             private int deltaX = 0;
             private long startTime = 0;
             private long deltaTime = 0;
@@ -139,10 +140,11 @@ public class Blocs extends SimpleBaseGameActivity {
                     startTime = pSceneTouchEvent.getMotionEvent().getEventTime();
                 }
                 else if(pSceneTouchEvent.isActionMove()) {
-                    deltaX = (int)Math.floor(pSceneTouchEvent.getX()/movementThreshold);
+                    pixelX = pSceneTouchEvent.getX();
+                    deltaX = (int)Math.floor(pixelX/movementThreshold);
+                    //gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshhold: " + movementThreshold + ", deltaX: " + deltaX);
+                    if(pixelX >= movementThreshold) {
 
-                    if(deltaTime >= TAP_TOUCH_THRESHOLD_MS && deltaX >= movementThreshold) {
-                        gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshholde: " + movementThreshold + ", deltaX: " + deltaX);
                         BlocsModel.move(deltaX);
                     }
 
@@ -151,7 +153,7 @@ public class Blocs extends SimpleBaseGameActivity {
                 else if(pSceneTouchEvent.isActionUp()) {
                     deltaTime = pSceneTouchEvent.getMotionEvent().getEventTime() - startTime;
                     if(deltaTime <= TAP_TOUCH_THRESHOLD_MS && deltaX < movementThreshold) {
-                        gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshholde: " + movementThreshold + ", deltaX: " + deltaX);
+                        //gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshholde: " + movementThreshold + ", deltaX: " + deltaX);
                         mBlocsModel.rotate();
                         if(BlocsModel.collisionDetected()) {
 
@@ -161,6 +163,7 @@ public class Blocs extends SimpleBaseGameActivity {
                     }
                     deltaTime = 0;
                     deltaX = 0;
+                    pixelX = 0;
 
                 }
                 return true;
