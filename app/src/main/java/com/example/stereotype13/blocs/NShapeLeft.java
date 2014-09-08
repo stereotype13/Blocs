@@ -5,13 +5,15 @@ package com.example.stereotype13.blocs;
  */
 public class NShapeLeft extends Block {
     public NShapeLeft() {
-        int[][] first = new int[][]{{0,1,0},
-                {1,1,0},
-                {1,0,0}};
+        int[][] first = new int[][]{
+                {0,1},
+                {1,1},
+                {1,0}};
 
-        int[][] second = new int[][]{{1,1,0},
+        int[][] second = new int[][]{
+                {1,1,0},
                 {0,1,1},
-                {0,0,0}};
+                };
 
 
         this.addConfiguration(first);

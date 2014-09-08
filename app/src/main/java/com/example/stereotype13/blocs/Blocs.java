@@ -1,9 +1,11 @@
 package com.example.stereotype13.blocs;
 
+import android.graphics.Typeface;
 import android.util.Log;
 import android.widget.Toast;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.physics.PhysicsHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -17,8 +19,12 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -29,6 +35,7 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.util.HorizontalAlign;
 import org.andengine.util.debug.Debug;
 
 import java.util.Random;
@@ -58,11 +65,21 @@ public class Blocs extends SimpleBaseGameActivity {
     private BitmapTextureAtlas mBitmapTextureAtlas;
     private TiledTextureRegion mFaceTextureRegion;
 
+    public float xSeconds = 0.5f; // meaning 5 and a half second
+    Timer timer;
+
+
     private Boolean mMovingRight = true;
     private Scene mScene;
     private BlocsModel mBlocsModel;
 
     public static VertexBufferObjectManager mVertexBufferObjectManager;
+
+    private final Camera camera = new Camera(0, 0, Blocs.CAMERA_WIDTH, Blocs.CAMERA_HEIGHT);
+    private HUD hud;
+    private Font mFont;
+    public static int mScore = 0;
+    public Text scoreText;
 
     // ===========================================================
     // Constructors
@@ -81,18 +98,31 @@ public class Blocs extends SimpleBaseGameActivity {
 
         //mVertexBufferObjectManager = this.getVertexBufferObjectManager();
 
-        final Camera camera = new Camera(0, 0, Blocs.CAMERA_WIDTH, Blocs.CAMERA_HEIGHT);
+
 
         return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(Blocs.CAMERA_WIDTH, Blocs.CAMERA_HEIGHT), camera);
     }
 
     @Override
     public void onCreateResources() {
+        this.mFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.ITALIC), 32);
+        this.mFont.load();
+
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
         this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 64, 32, TextureOptions.BILINEAR);
         this.mFaceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "face_circle_tiled.png", 0, 0, 2, 1);
         this.mBitmapTextureAtlas.load();
+    }
+
+    public void updateHUDScore() {
+
+       scoreText.setText("Score: " + String.valueOf(BlocsModel.mScore) );
+
+       float level = (float)BlocsModel.mLevel;
+       float interval = xSeconds/level;
+       timer.setInterval(interval);
+        mScene = mBlocsModel.render(mScene);
     }
 
     @Override
@@ -101,6 +131,16 @@ public class Blocs extends SimpleBaseGameActivity {
         mVertexBufferObjectManager = this.getVertexBufferObjectManager();
 
         mScene = new Scene();
+
+        hud = new HUD();
+
+
+
+        scoreText = new Text(100, 40, this.mFont, "Default Text", new TextOptions(HorizontalAlign.LEFT), this.getVertexBufferObjectManager());
+        scoreText.setText("Score: " + String.valueOf(BlocsModel.mScore) );
+        hud.attachChild(scoreText);
+
+        camera.setHUD(hud);
 
         mScene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 
@@ -111,15 +151,18 @@ public class Blocs extends SimpleBaseGameActivity {
 
        // Log.d("LOG", mBlocsModel.toString());
 
-        float xSeconds = 0.5f; // meaning 5 and a half second
-        boolean repeat = true; // true to reset the timer after the time passed and execute again
-        final TimerHandler myTimer = new TimerHandler(xSeconds, repeat, new ITimerCallback() {
-            public void onTimePassed(TimerHandler pTimerHandler) {
+
+        boolean repeat = true;
+
+        timer = new Timer(xSeconds, new Timer.ITimerCallback() {
+            public void onTick() {
                 update();
             }
         });
 
-        mScene.registerUpdateHandler(myTimer);
+        mScene.registerUpdateHandler(timer);
+
+
 
         mScene.setTouchAreaBindingOnActionDownEnabled(true);
         mScene.setTouchAreaBindingOnActionMoveEnabled(true);
@@ -127,7 +170,10 @@ public class Blocs extends SimpleBaseGameActivity {
 
             private float originX = 0.0f;
             private float pixelX = 0.0f;
+            private float deltaPixelX = 0.0f;
             private int deltaX = 0;
+            private int deltaX_0 = 0;
+            private int deltaX_1 = 0;
             private long startTime = 0;
             private long deltaTime = 0;
             private float movementThreshold = CAMERA_WIDTH/BlocsModel.BOARD_COLUMNS;
@@ -141,9 +187,29 @@ public class Blocs extends SimpleBaseGameActivity {
                 }
                 else if(pSceneTouchEvent.isActionMove()) {
                     pixelX = pSceneTouchEvent.getX();
-                    deltaX = (int)Math.floor(pixelX/movementThreshold);
-                    //gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshhold: " + movementThreshold + ", deltaX: " + deltaX);
-                    if(pixelX >= movementThreshold) {
+                    deltaPixelX = originX - deltaPixelX;
+
+                    deltaX_1 = (int)Math.round(pixelX/40);
+                    if(deltaX_0 != deltaX_1) {
+                        deltaX = deltaX_1 - deltaX_0;
+                        if(deltaX > 1) {
+                            deltaX = 1;
+                        }
+                        if(deltaX < -1) {
+                            deltaX = -1;
+                        }
+                        deltaX_0 = deltaX_1;
+                    }
+                    else {
+                        deltaX = 0;
+                    }
+
+
+                  // Log.e("MYLOG1", "deltaX_0: " + String.valueOf(deltaX_0));
+                  // Log.e("MYLOG2", "deltaX_1: " + String.valueOf(deltaX_1));
+                   Log.e("MYLOG3", "deltaX: " + String.valueOf(deltaX));
+
+                    if(deltaPixelX != 0) {
 
                         BlocsModel.move(deltaX);
                     }
@@ -153,17 +219,16 @@ public class Blocs extends SimpleBaseGameActivity {
                 else if(pSceneTouchEvent.isActionUp()) {
                     deltaTime = pSceneTouchEvent.getMotionEvent().getEventTime() - startTime;
                     if(deltaTime <= TAP_TOUCH_THRESHOLD_MS && deltaX < movementThreshold) {
-                        //gameToast("deltaTime: " + String.valueOf(deltaTime) + ", movementThreshholde: " + movementThreshold + ", deltaX: " + deltaX);
+
                         mBlocsModel.rotate();
                         if(BlocsModel.collisionDetected()) {
-
+                            mScore += 10;
                             mBlocsModel.addBlock(chooseRandomBlock());
                         }
                         mScene = mBlocsModel.render(mScene);
                     }
                     deltaTime = 0;
-                    deltaX = 0;
-                    pixelX = 0;
+
 
                 }
                 return true;
@@ -224,6 +289,7 @@ public class Blocs extends SimpleBaseGameActivity {
     }
 
     public void update() {
+        updateHUDScore();
         if(!mBlocsModel.updateModel()) {
 
             if(!mBlocsModel.addBlock(chooseRandomBlock())) {

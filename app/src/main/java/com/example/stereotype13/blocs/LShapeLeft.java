@@ -6,19 +6,21 @@ package com.example.stereotype13.blocs;
 public class LShapeLeft extends Block {
 
     LShapeLeft() {
-        int[][] first = new int[][]{{0,1,0},
-                {0,1,0},
-                {1,1,0}};
+        int[][] first = new int[][]{
+                {0,1},
+                {0,1},
+                {1,1}};
 
-        int[][] second = new int[][]{{1,0,0},
-                {1,1,1},
-                {0,0,0}};
+        int[][] second = new int[][]{
+                {1,0,0},
+                {1,1,1}};
 
-        int[][] third = new int[][]{{0,1,1},
-                {0,1,0},
-                {0,1,0}};
+        int[][] third = new int[][]{
+                {1,1},
+                {1,0},
+                {1,0}};
 
-        int[][] fourth = new int[][]{{0,0,0},
+        int[][] fourth = new int[][]{
                 {1,1,1},
                 {0,0,1}};
 

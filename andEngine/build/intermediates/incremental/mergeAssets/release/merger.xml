@@ -2,10 +2,10 @@
 <merger version="2" >
 
     <dataSet config="main" >
-        <source path="/Users/stereotype13/AndroidStudioProjects/Blocs/andEngine/src/main/assets" />
+        <source path="C:\Users\r\AndroidStudioProjects\Blocs\andEngine\src\main\assets" />
     </dataSet>
     <dataSet config="release" >
-        <source path="/Users/stereotype13/AndroidStudioProjects/Blocs/andEngine/src/release/assets" />
+        <source path="C:\Users\r\AndroidStudioProjects\Blocs\andEngine\src\release\assets" />
     </dataSet>
 
 </merger>

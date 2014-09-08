@@ -18,6 +18,7 @@ public class Block {
     public int y = 0;
 
 
+
     public Block() {
 
 
@@ -105,10 +106,17 @@ public class Block {
     public class Configuration {
 
         private int[][] mShape;
-
+        public int maxY = 11;
 
 
         public Configuration(int[][] shape) {
+
+            int[][] board = BlocsModel.getBoard();
+
+            int BOARD_ROWS = board.length;
+            int BOARD_COLUMNS = board[0].length;
+
+            maxY = BOARD_COLUMNS - shape[0].length;
             mShape = shape;
         }
 
@@ -233,6 +241,10 @@ public class Block {
         BlocsModel.setFrontBuffer(backBuffer);
 
 
+    }
+
+    public int getCurrentConfigurationMaxY() {
+        return mConfigurations.get(mCurrentConfiguration).maxY;
     }
 
     public int[][] getCurrentConfiguration() {

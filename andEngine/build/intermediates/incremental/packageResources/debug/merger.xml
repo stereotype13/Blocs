@@ -2,12 +2,12 @@
 <merger version="2" >
 
     <dataSet config="main" >
-        <source path="/Users/stereotype13/AndroidStudioProjects/Blocs/andEngine/src/main/res" />
-        <source path="/Users/stereotype13/AndroidStudioProjects/Blocs/andEngine/build/generated/res/rs/debug" />
-        <source path="/Users/stereotype13/AndroidStudioProjects/Blocs/andEngine/build/generated/res/generated/debug" />
+        <source path="C:\Users\r\AndroidStudioProjects\Blocs\andEngine\src\main\res" />
+        <source path="C:\Users\r\AndroidStudioProjects\Blocs\andEngine\build\generated\res\rs\debug" />
+        <source path="C:\Users\r\AndroidStudioProjects\Blocs\andEngine\build\generated\res\generated\debug" />
     </dataSet>
     <dataSet config="debug" >
-        <source path="/Users/stereotype13/AndroidStudioProjects/Blocs/andEngine/src/debug/res" />
+        <source path="C:\Users\r\AndroidStudioProjects\Blocs\andEngine\src\debug\res" />
     </dataSet>
 
 </merger>

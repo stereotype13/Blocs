@@ -1,5 +1,7 @@
 package com.example.stereotype13.blocs;
 
+import android.util.Log;
+
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 
@@ -19,6 +21,8 @@ public class BlocsModel {
     private static ArrayList<Block> mBlocks;
 
     private Scene mScene;
+    public static int mScore = 0;
+    public static int mLevel = 1;
 
     public BlocsModel(Scene scene) {
 
@@ -37,6 +41,34 @@ public class BlocsModel {
 
     }
 
+    public void removeFullRows(){
+        int removedRowsCount = 0;
+        for(int i = 0; i < BOARD_ROWS; i++) {
+            for(int j = 0; j < BOARD_COLUMNS; j++) {
+                if(mBoard[i][j] == 0) {
+                    break;
+                }
+                else {
+                    if(j == BOARD_COLUMNS - 1) {
+                        removedRowsCount++;
+                        for(int k = 0; k < BOARD_COLUMNS; k++) {
+                            mBoard[i][k] = 0;
+                        }
+                        for(int m = i - 1; m >= 0; m--) {
+                            for(int n = 0; n < BOARD_COLUMNS; n++) {
+                                if(mBoard[m][n] != 0) {
+                                    mBoard[m+1][n] = mBoard[m][n];
+                                    mBoard[m][n] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        mScore += removedRowsCount * 100;
+    }
+
     public boolean updateModel() {
         boolean updateWorked = true;
         //Look for the in-play block and move it down, unless there is a collision.
@@ -45,7 +77,10 @@ public class BlocsModel {
                 block.update();
 
                 if(block.detectCollision()) {
+                    mScore += 10;
+                    mLevel = (int)Math.ceil((double)mScore/(double)1000);
                     block.setIsInPlay(false);
+                    removeFullRows();
                     updateWorked = false;
                 }
 
@@ -135,7 +170,8 @@ public class BlocsModel {
     }
 
     public void reset() {
-
+        mScore = 0;
+        mLevel = 1;
         //Set all elements of the board to 0
         for(int i = 0; i < BOARD_ROWS; i++) {
             for(int j = 0; j < BOARD_COLUMNS; j++) {
@@ -182,12 +218,29 @@ public class BlocsModel {
         return backBuffer;
     }
 
-    public static boolean move(int x) {
+    public static boolean move(int deltaY) {
         boolean canMove = true;
 
+
         Block block = mBlocks.get(mBlocks.size() - 1);
-        //Flip flop x and y
-        block.setY(x);
+        int currentY = block.y;
+        int y = currentY + deltaY;
+        int maxY = block.getCurrentConfigurationMaxY();
+
+
+
+        if(y <= maxY && y >= 0) {
+            block.setY(y);
+        }
+        else if(y > maxY) {
+            block.setY(maxY);
+        }
+        else if(y < 0) {
+            block.setY(0);
+        }
+
+
+
         block.placeOnBoard();
         return canMove;
     }

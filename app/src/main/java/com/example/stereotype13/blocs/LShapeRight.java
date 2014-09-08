@@ -8,21 +8,24 @@ public class LShapeRight extends Block {
     public LShapeRight() {
 
 
-        int[][] first = new int[][]{{0,1,0},
-                 {0,1,0},
-                 {0,1,1}};
+        int[][] first = new int[][]{
+                 {1,0},
+                 {1,0},
+                 {1,1}};
 
-        int[][] second = new int[][]{{0,0,0},
+        int[][] second = new int[][]{
                 {1,1,1},
                 {1,0,0}};
 
-        int[][] third = new int[][]{{1,1,0},
-                {0,1,0},
-                {0,1,0}};
+        int[][] third = new int[][]{
+                {1,1},
+                {0,1},
+                {0,1}};
 
-        int[][] fourth = new int[][]{{0,0,1},
+        int[][] fourth = new int[][]{
+                {0,0,1},
                 {1,1,1},
-                {0,0,0}};
+                };
 
 
         this.addConfiguration(first);
